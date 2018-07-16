@@ -13,7 +13,7 @@ import static spark.Spark.*;
  */
 public class App {
 	public static void main(String[] args) throws IOException {
-		int maxThreads = 64;
+		int maxThreads = 24;
 		threadPool(maxThreads);
 		post("/extract", (req, res) -> {
 			return (new Graphene()).doRelationExtraction(req.body(), false, false).serializeToJSON();

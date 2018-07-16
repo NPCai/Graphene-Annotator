@@ -20,9 +20,21 @@ The [official graphene server](https://github.com/Lambda-3/Graphene) was failing
 
 ## Install
 
-From the project root run:
+Install graphene:
 
 ```
+git clone https://github.com/Lambda-3/Graphene.git
+cd Graphene
+touch conf/graphene.conf
+./install*
+mvn clean install -DskipTests
+```
+
+Install REST Graphene:
+
+```
+git clone https://github.com/NPCai/REST-graphene.git
+cd REST-graphene
 mvn clean install
 mvn package
 mvn exec:java

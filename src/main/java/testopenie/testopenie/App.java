@@ -39,16 +39,14 @@ public class App {
 		}
 		
 		while (outs.size() < initialSize) { // task is not finished
-			System.out.println("\n--------------\n\n\nSentences remaining: " + queue.size() + "\n" + "Sentences done: " + outs.size() + "\n------------\n");
+			System.out.println("\n--------------\n\n\nSentences done: " + outs.size() + "\n------------\n");
 			Thread.sleep(1000);
 		}
 		
 		executor.shutdown();
 		FileWriter writer = new FileWriter("./all_news_tgt.txt");
 		PrintWriter printWriter = new PrintWriter(writer);
-		// TODO: wait until all threads finished
 		for (String s : outs) {
-			System.out.println(s);
 			printWriter.println(s);
 		}
 		printWriter.close();

@@ -21,7 +21,7 @@ import org.lambda3.graphene.core.relation_extraction.model.ExContent;
  */
 public class App {
 	public static void main(String[] args) throws IOException, InterruptedException, ExecutionException {
-		int numThreads = 96;
+		int numThreads = 85;
 
 		ExecutorService executor = Executors.newFixedThreadPool(numThreads);
 		LinkedBlockingQueue[] queues = new LinkedBlockingQueue[numThreads];

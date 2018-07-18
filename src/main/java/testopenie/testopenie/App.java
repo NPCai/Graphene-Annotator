@@ -6,6 +6,8 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -16,46 +18,75 @@ import org.lambda3.graphene.core.*;
 import org.lambda3.graphene.core.relation_extraction.model.ExContent;
 
 /**
- * Hello world!
- *
+ * inFile is the input file, read line by line posFile holds the last operated
+ * input line
+ * 
  */
 public class App {
 	public static void main(String[] args) throws IOException, InterruptedException, ExecutionException {
-		int numThreads = 85;
+		int numThreads = 20;
 
 		ExecutorService executor = Executors.newFixedThreadPool(numThreads);
-		LinkedBlockingQueue[] queues = new LinkedBlockingQueue[numThreads];
 
-		for (int i = 0; i < numThreads; i++) {
-			queues[i] = new LinkedBlockingQueue<String>();
-		}
-
+		LinkedBlockingQueue<String> queue = new LinkedBlockingQueue<String>();
 		LinkedBlockingQueue<String> outs = new LinkedBlockingQueue<String>();
-		long count = 0;
+
 		try (BufferedReader br = new BufferedReader(new FileReader(new File("./test.txt")))) {
 			String line;
-			
 			while ((line = br.readLine()) != null) {
-				queues[(int) (++count % numThreads)].put(line.trim());
+				queue.put(line.trim());
+			}
+			br.close();
+		}
+
+		List<Future<?>> futures = new ArrayList<Future<?>>();
+
+		for (int i = 0; i < numThreads; i++) {
+			futures.add(executor.submit(new GrapheneWorker(queue, outs)));
+		}
+
+		while (true) { // task is not finished
+			boolean allDone = true;
+			for (Future<?> future : futures) {
+				allDone &= future.isDone(); // check if future is done
+			}
+			if (allDone)
+				break;
+			System.out.println("\n--------------\n\n\nSentences left: " + queue.size() + "\n------------\n");
+			Thread.sleep(5000); // Once a minute, dump to text file
+			// Overwrite test.txt with only remaining elements
+			FileWriter queueWriter = new FileWriter("./test.txt");
+			PrintWriter queuePrinter = new PrintWriter(queueWriter);
+			synchronized (queue) {
+				for (String s : queue) {
+					queuePrinter.println(s);
+				}
+				queuePrinter.close();
+			}
+			// Save current extracts
+			synchronized (outs) {
+				FileWriter outWriter = new FileWriter("./all_news_tgt.txt", true);
+				PrintWriter outPrinter = new PrintWriter(outWriter);
+				for (String s : outs) {
+					outPrinter.println(s);
+					outPrinter.flush();
+				}
+				outPrinter.close();
+				while (outs.size() > 0) outs.remove();
 			}
 		}
 
-		for (int i = 0; i < numThreads; i++) {
-			executor.submit(new GrapheneWorker(queues[i], outs));
-		}
-
-		while (outs.size() < count) { // task is not finished
-			System.out.println("\n--------------\n\n\nSentences done: " + outs.size() + "\n------------\n");
-			Thread.sleep(1000);
-		}
-
 		executor.shutdown();
-		FileWriter writer = new FileWriter("./all_news_tgt.txt");
-		PrintWriter printWriter = new PrintWriter(writer);
-		for (String s : outs) {
-			printWriter.println(s);
+
+		synchronized (outs) {
+			FileWriter outWriter = new FileWriter("./all_news_tgt.txt", true);
+			PrintWriter outPrinter = new PrintWriter(outWriter);
+			for (String s : outs) {
+				outPrinter.println(s);
+			}
+			outPrinter.close();
 		}
-		printWriter.close();
+
 		System.out.println("Done");
 	}
 }

@@ -24,7 +24,7 @@ import org.lambda3.graphene.core.relation_extraction.model.ExContent;
  */
 public class App {
 	public static void main(String[] args) throws IOException, InterruptedException, ExecutionException {
-		int numThreads = 1000;
+		int numThreads = 300;
 
 		ExecutorService executor = Executors.newFixedThreadPool(numThreads);
 
@@ -80,7 +80,7 @@ public class App {
 			if (allDone)
 				break;
 			System.out.println("\n--------------\n\n\nSentences left: " + queue.size() + "\n------------\n");
-			Thread.sleep(60000); // Once a minute, dump to text file
+			Thread.sleep(10000); // Once a minute, dump to text file
 			// Overwrite test.txt with only remaining elements
 			FileWriter queueWriter = new FileWriter("./test.txt");
 			PrintWriter queuePrinter = new PrintWriter(queueWriter);

@@ -24,7 +24,7 @@ import org.lambda3.graphene.core.relation_extraction.model.ExContent;
  */
 public class App {
 	public static void main(String[] args) throws IOException, InterruptedException, ExecutionException {
-		int numThreads = 200;
+		int numThreads = 1000;
 
 		ExecutorService executor = Executors.newFixedThreadPool(numThreads);
 

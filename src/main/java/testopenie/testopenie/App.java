@@ -45,6 +45,33 @@ public class App {
 			futures.add(executor.submit(new GrapheneWorker(queue, outs)));
 		}
 
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+			public void run() {
+				try {
+					FileWriter queueWriter = new FileWriter("./test.txt");
+					PrintWriter queuePrinter = new PrintWriter(queueWriter);
+					synchronized (queue) {
+						for (String s : queue) {
+							queuePrinter.println(s);
+						}
+						queuePrinter.close();
+					}
+
+					synchronized (outs) {
+						FileWriter outWriter = new FileWriter("./all_news_tgt.txt", true);
+						PrintWriter outPrinter = new PrintWriter(outWriter);
+						for (String s : outs) {
+							outPrinter.println(s);
+						}
+						outPrinter.close();
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+		System.out.println("Application Terminating ...");
+
 		while (true) { // task is not finished
 			boolean allDone = true;
 			for (Future<?> future : futures) {
@@ -72,7 +99,8 @@ public class App {
 					outPrinter.flush();
 				}
 				outPrinter.close();
-				while (outs.size() > 0) outs.remove();
+				while (outs.size() > 0)
+					outs.remove();
 			}
 		}
 

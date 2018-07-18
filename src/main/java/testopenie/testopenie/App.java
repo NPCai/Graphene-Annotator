@@ -70,7 +70,7 @@ public class App {
 				}
 			}
 		});
-		System.out.println("Application Terminating ...");
+		
 
 		while (true) { // task is not finished
 			boolean allDone = true;

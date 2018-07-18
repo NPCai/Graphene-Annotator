@@ -80,7 +80,7 @@ public class App {
 			if (allDone)
 				break;
 			System.out.println("\n--------------\n\n\nSentences left: " + queue.size() + "\n------------\n");
-			Thread.sleep(5000); // Once a minute, dump to text file
+			Thread.sleep(60000); // Once a minute, dump to text file
 			// Overwrite test.txt with only remaining elements
 			FileWriter queueWriter = new FileWriter("./test.txt");
 			PrintWriter queuePrinter = new PrintWriter(queueWriter);
